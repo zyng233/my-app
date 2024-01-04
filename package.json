@@ -1,0 +1,45 @@
+{
+  "name": "app",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/inter": "^5.0.16",
+    "@mui/joy": "^5.0.0-beta.20",
+    "@mui/material": "^5.15.2",
+    "@mui/types": "^7.2.11",
+    "@types/axios": "^0.14.0",
+    "auto-reload-brunch": "^3.0.1",
+    "axios": "^1.6.3",
+    "coffeelint-brunch": "^2.10.0",
+    "emblem-brunch": "^0.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "package-name": "^0.1.0",
+    "react": "^18.2.0",
+    "react-devtools": "^5.0.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^6.21.1",
+    "react-router-dom": "^6.21.1",
+    "react-scripts": "^5.0.1"
+  },
+  "version": "0.1.0",
+  "babel": {
+    "presets": [
+      "./node_modules/@rails/webpacker/package/babel/preset.js"
+    ]
+  },
+  "scripts": {
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "start-backend": "rails server -p 3001",
+    "start-frontend": "cd simple-forum && npm start --port 3000"
+  },
+  "browserslist": [
+    "defaults"
+  ],
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/react-router-dom": "^5.3.3",
+    "concurrently": "^8.2.2"
+  }
+}
