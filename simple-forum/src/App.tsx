@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import axiosInstance from "./axiosConfig";
 import HomePage from "./components/auth/Homepage";
@@ -14,8 +8,7 @@ import SignupPage from "./components/auth/Signup";
 import ThreadsList from "./components/thread/ThreadList";
 import ThreadForm from "./components/thread/ThreadForm";
 import Navigation from "./components/auth/Navigation";
-import { AuthProvider } from "./components/auth/Auth_status";
-import { checkTokenExpiration } from "./components/auth/TokenUtil";
+import { AuthProvider, useAuth } from "./components/auth/Auth_status";
 
 const App: React.FC = () => {
   const [threads, setThreads] = useState<
@@ -27,15 +20,21 @@ const App: React.FC = () => {
     }[]
   >([]);
 
-  const isAuthenticated = localStorage.getItem("token") !== null;
+  const { isAuthenticated, logout } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const threadsResponse = await axiosInstance.get("/discussion_threads", {
-          withCredentials: true,
-        });
-        setThreads(threadsResponse.data);
+        if (isAuthenticated) {
+          const threadsResponse = await axiosInstance.get(
+            "/discussion_threads",
+            {
+              withCredentials: true,
+            }
+          );
+          setThreads(threadsResponse.data);
+        }
       } catch (error: any) {
         if (error.response && error.response.status === 401) {
           // Handle unauthorized access
@@ -43,11 +42,13 @@ const App: React.FC = () => {
         } else {
           console.error("Error fetching data:", error);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, []); // Run once on component mount
+  }, [isAuthenticated, logout]);
 
   const handleThreadSubmit = async (data: {
     title: string;
@@ -66,6 +67,10 @@ const App: React.FC = () => {
       console.error("Error creating thread:", error);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <BrowserRouter>

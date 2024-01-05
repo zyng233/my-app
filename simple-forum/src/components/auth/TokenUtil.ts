@@ -22,5 +22,5 @@ export const checkTokenExpiration = (token: string | null): boolean => {
     }
   }
 
-  return false; // Return false if there's an issue or the token is not found
+  return false;
 };
