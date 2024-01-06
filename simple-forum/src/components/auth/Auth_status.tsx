@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosConfig";
-import { checkTokenExpiration } from "./TokenUtil";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -39,18 +38,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } else {
       setIsAuthenticated(false);
     }
-
-    try {
-      if (!token || !checkTokenExpiration(token)) {
-        logout();
-        navigate("/login");
-      }
-    } catch (error) {
-      console.error("Error checking token expiration:", error);
-      logout();
-      navigate("/login");
-    }
-
     console.log("IsAuthenticated:", isAuthenticated);
   }, []);
 
