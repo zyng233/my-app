@@ -7,4 +7,17 @@ module.exports = {
       buffer: require.resolve("buffer/"),
     },
   },
+
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+    ],
+  },
+
+  output: {
+    publicPath: "/",
+  },
 };

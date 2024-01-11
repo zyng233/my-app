@@ -1,6 +1,7 @@
 class Api::CommentsController < ApplicationController
     before_action :set_comment, only: [:show, :update, :destroy]
-  
+    before_action :authenticate_user!, only: [:create, :update, :destroy]
+
     def index
       @comments = Comment.all
       render json: @comments
@@ -11,7 +12,8 @@ class Api::CommentsController < ApplicationController
     end
   
     def create
-      @comment = Comment.new(comment_params)
+      @comment = current_user.comments.new(comment_params)
+      @comment.discussion_thread_id = params[:comment][:discussion_thread_id]
   
       if @comment.save
         render json: @comment, status: :created, location: @comment

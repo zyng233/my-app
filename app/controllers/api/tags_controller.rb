@@ -1,6 +1,8 @@
 class Api::TagsController < ApplicationController
-    before_action :set_tag, only: [:show, :update, :destroy]
-  
+  before_action :log_authorization_header, only: :index
+  before_action :authorize_request
+  before_action :set_tag, only: [:show, :update, :destroy]
+
     def index
       @tags = Tag.all
       render json: @tags

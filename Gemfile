@@ -4,6 +4,10 @@ ruby "3.2.2"
 
 gem 'jwt'
 
+gem 'devise', '~> 4.7'
+
+gem 'omniauth', '>= 1.0.0'
+
 gem 'rack-cors'
 
 gem 'webpacker', '~> 6.0.rc.6'
@@ -73,7 +77,7 @@ group :test do
 end
 
 group :default, :development, :test do
-  gem 'bcrypt', '~> 3.1.16'
+  gem 'bcrypt', '~> 3.1.20'
 end
 
 gem "react-rails", "~> 3.1"

@@ -4,12 +4,14 @@ class Api::SessionsController < ApplicationController
 
   def create
     user = User.find_by(username: params[:username])
-    
-    if user&.authenticate(params[:password])
-      token = encode_token(user_id: user.id)
-      render json: { user: user, token: token }
+    log_info("User username: #{user.username}, Password: #{params[:password]}")
+  
+    if user&.valid_password?(params[:password])
+      sign_in user, store: false
+      token = encode_token({ username: user.username })
+      render json: { token: token }
     else
-      render json: { error: 'Invalid username or password' }, status: :unauthorized
+      render json: { errors: 'Invalid username or password' }, status: :unauthorized
     end
   end
 end

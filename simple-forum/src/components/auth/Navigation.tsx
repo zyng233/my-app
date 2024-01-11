@@ -34,7 +34,7 @@ const Navigation: React.FC = () => {
   return (
     <Stack spacing={2} sx={{ flexGrow: 1 }}>
       <ThemeProvider theme={darkTheme}>
-        <AppBar position="static" color="primary">
+        <AppBar position="static">
           <Toolbar>
             <Tabs value={value} onChange={handleChange}>
               <Tab label="Threads" component={Link} to="/discussion_threads" />

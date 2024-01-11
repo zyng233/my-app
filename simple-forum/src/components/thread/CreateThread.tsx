@@ -1,125 +1,203 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axiosInstance from "../../axiosConfig";
 import { useNavigate } from "react-router-dom";
-import Tag from "../tag/Tag";
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Chip from "@mui/material/Chip";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import "./CreateThread.css";
 
-interface Tag {
-  id: number;
-  name: string;
-}
-
-const CreateThreadForm: React.FC = () => {
+const CreateThread: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const [tags, setTags] = useState<number[]>([]); //store selected tags
-  const [allTags, setAllTags] = useState<Tag[]>([]); //store all available tags
-  const [loading, setLoading] = useState<boolean>(true);
+  const [tagInput, setTagInput] = useState<string>("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [isDuplicateTag, setIsDuplicateTag] = useState<boolean>(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Fetch all tags when the component mounts
-    const fetchTags = async () => {
-      try {
-        const response = await axiosInstance.get<Tag[]>("/tags");
-        setAllTags(response.data);
-      } catch (error) {
-        console.error("Error fetching tags:", error);
-      } finally {
-        setLoading(false);
+  //Tag related function
+  const handleAddTag = () => {
+    if (tagInput.trim() !== "") {
+      const trimmedTag = tagInput.trim();
+      if (tags.includes(trimmedTag)) {
+        setIsDuplicateTag(true);
+        return;
       }
-    };
 
-    fetchTags();
-  }, []);
-
-  const handleTagChange = (selectedTags: number[]) => {
-    setTags(selectedTags);
+      setIsDuplicateTag(false);
+      setTags((prevTags) => [...prevTags, trimmedTag]);
+      setTagInput("");
+    }
   };
 
+  const handleDeleteTag = (indexToDelete: number) => {
+    setTags((prevTags) =>
+      prevTags.filter((_, index) => index !== indexToDelete)
+    );
+  };
+
+  //Submit thread
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
+      // Handle empty title or content
+      if (!title || !content) {
+        setValidationError("Title and content are required.");
+        return;
+      }
+
       const response = await axiosInstance.post(
         "/discussion_threads",
         {
-          title,
-          content,
-          tag_ids: tags,
+          discussion_thread: {
+            title,
+            content,
+            tag_names: tags,
+          },
         },
         { withCredentials: true }
       );
 
       console.log("Thread created:", response.data);
-      navigate(`/discussion_threads/${response.data.id}`);
+      navigate("/discussion_threads");
     } catch (error) {
       console.error("Error creating thread:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="thread">
-      <form onSubmit={handleSubmit} className="form">
-        <label htmlFor="title">Title:</label>
-        <input
-          type="text"
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      className="form-container"
+      sx={{
+        backgroundImage:
+          "url('https://images.pexels.com/photos/531767/pexels-photo-531767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+        "& .MuiTextField-root": { m: 1, width: "60vw" },
+      }}
+      noValidate
+    >
+      <Typography
+        variant="h2"
+        sx={{ color: "white", fontWeight: "bold", marginBottom: 2 }}
+      >
+        Create New Thread
+      </Typography>
+
+      <div>
+        <TextField
+          required
           id="title"
-          name="title"
+          label="Title"
+          variant="filled"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+      </div>
 
-        <label htmlFor="content">Content:</label>
-        <textarea
+      <div>
+        <TextField
+          required
           id="content"
-          name="content"
+          label="Content"
+          variant="filled"
+          multiline
+          rows={4}
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+      </div>
 
-        <label htmlFor="tags">Tags:</label>
-        <select
+      <div className="add-tag">
+        <TextField
+          required
           id="tags"
-          name="tags"
-          multiple
-          value={tags.map(String)}
-          onChange={(e) =>
-            handleTagChange(
-              Array.from(e.target.selectedOptions, (option) =>
-                Number(option.value)
-              )
-            )
-          }
-          style={{ height: "80px" }}
+          label="Tags"
+          variant="filled"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+        />
+        <Button
+          type="button"
+          onClick={handleAddTag}
+          variant="contained"
+          sx={{
+            margin: "auto",
+            "&:hover": {
+              backgroundColor: "darkgrey",
+            },
+          }}
         >
-          {allTags.map(({ id, name }) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </select>
+          Add
+        </Button>
+      </div>
 
-        <div className="top">
-          {tags.map((tagId) => (
-            <Tag
-              key={tagId}
-              tag={
-                allTags.find((tag) => tag.id === tagId) || {
-                  id: -1,
-                  name: "Unknown Tag",
-                }
-              }
-            />
-          ))}
+      {isDuplicateTag && (
+        <Stack sx={{ width: "50%" }} spacing={2}>
+          <Alert severity="warning" onClose={() => setIsDuplicateTag(false)}>
+            Duplicate tag! Please enter a different tag.{" "}
+          </Alert>
+        </Stack>
+      )}
+
+      {validationError && (
+        <Stack sx={{ width: "50%" }} spacing={2}>
+          <Alert severity="error" onClose={() => setValidationError(null)}>
+            {validationError}
+          </Alert>
+        </Stack>
+      )}
+
+      {tags.length > 0 && (
+        <div>
+          <Stack direction="row" spacing={1}>
+            {tags.map((tag, index) => (
+              <Chip
+                key={index}
+                color="info"
+                size="medium"
+                label={tag}
+                onDelete={() => handleDeleteTag(index)}
+              />
+            ))}
+          </Stack>
         </div>
+      )}
 
-        <button type="submit" disabled={loading} className="top">
-          Create Thread
-        </button>
-      </form>
-    </div>
+      <Button
+        type="submit"
+        disabled={loading}
+        size="large"
+        variant="contained"
+        sx={{
+          color: "white",
+          "&:hover": {
+            backgroundColor: "darkgrey",
+          },
+        }}
+      >
+        Create
+      </Button>
+    </Box>
   );
 };
 
-export default CreateThreadForm;
+export default CreateThread;

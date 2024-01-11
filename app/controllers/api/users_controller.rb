@@ -4,26 +4,22 @@ class Api::UsersController < ApplicationController
     def create
       user = User.new(user_params)
       Rails.logger.info("Received Parameters: #{params.inspect}")
-      puts "User before validation: #{user.inspect}"
 
+      puts "User before validation: #{user.attributes.inspect}"
+      
       if user_exists?(user.username, user.matric_no)
         render json: { errors: ['Username or Matric Number is already used.'] }, status: :unprocessable_entity
         return
       end
-
-      Rails.logger.info("User before save: #{user.inspect}")
-      user.password = params[:password]
       
       if user.save
-        token = encode_token(user_id: user.id)
-        render json: { user: user, token: token }, status: :created
+        render json: { user: user, token: generate_token(user) }, status: :created
       else
         puts "User validation errors: #{user.errors.full_messages}"
         render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
       end
 
-      Rails.logger.info("Generated Token: #{token}")
-
+      Rails.logger.info("Generated Token: #{generate_token(user)}")
     end
   
     private
@@ -33,10 +29,11 @@ class Api::UsersController < ApplicationController
     end
 
     def user_exists?(username, matric_no)
-      username_exists = User.exists?('username' => username)
-      matric_no_exists = User.exists?('matric_no' => matric_no)
-    
-      username_exists || matric_no_exists
+      User.exists?(username: username) || User.exists?(matric_no: matric_no)
     end
-  end
-  
+
+    def generate_token(user)
+      payload = { username: user.username }
+      JWT.encode(payload, Rails.application.credentials.secret_key_base, 'HS256')
+    end
+end

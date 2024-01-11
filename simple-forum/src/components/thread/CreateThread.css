@@ -1,20 +1,15 @@
-.thread {
-  text-align: center;
-  height: 100vh;
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Georgia;
+  font-size: 25px;
+  gap: 10px;
 }
 
-.form {
-  width: 300px;
-  margin: 0 auto;
-}
-
-.form label,
-.form input,
-.form textarea,
-.form select {
-  margin-bottom: 10px;
-}
-
-.form .top {
-  margin-top: 10px;
+.add-tag {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 50%;
 }

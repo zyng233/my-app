@@ -1,6 +1,6 @@
 class Tag < ApplicationRecord
-    has_many :discussion_threads, through: :taggings
-    has_many :taggings, dependent: :destroy
-
-    validates :name, presence: true, uniqueness: true
-  end
+  has_many :taggings, dependent: :destroy
+  has_and_belongs_to_many :discussion_threads, through: :taggings
+    
+  validates :name, presence: true, uniqueness: true
+end

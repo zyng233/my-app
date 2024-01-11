@@ -10,6 +10,7 @@ import axiosInstance from "../../axiosConfig";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
+  username: string | null;
   login: (username: string, password: string) => Promise<void>;
   signup: (
     username: string,
@@ -30,16 +31,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   console.log("Token in localStorage:", localStorage.getItem("token"));
   console.log("IsAuthenticated:", isAuthenticated);
   const navigate = useNavigate();
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
+    setIsAuthenticated(!!token);
     console.log("IsAuthenticated:", isAuthenticated);
-  }, []);
+  }, [isAuthenticated]);
 
   const login = async (username: string, password: string) => {
     try {
@@ -52,6 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const { token } = response.data;
       localStorage.setItem("token", token);
       setIsAuthenticated(true);
+      setUsername(username);
       console.log("User logged in");
       console.log("Token in localStorage:", localStorage.getItem("token"));
       navigate("/discussion_threads");
@@ -66,11 +65,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     password: string,
     matricNo: string
   ) => {
-    console.log("Password before API call:", password);
     try {
       const response = await axiosInstance.post(
         "/signup",
-        { username, password, matric_no: matricNo },
+        {
+          user: { username, password, matric_no: matricNo },
+        },
         { withCredentials: true, timeout: 10000 }
       );
 
@@ -88,11 +88,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
+    setUsername(null);
     navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, username, login, signup, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
