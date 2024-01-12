@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axiosInstance from "../../axiosConfig";
+import CommentForm from "../comment/CommentForm";
 import { Card, CardContent, Typography, Chip, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Comment from "../comment/Comment";
 
 interface Thread {
   id: number;
@@ -10,6 +12,7 @@ interface Thread {
   content: string;
   tags: { name: string }[];
   username: string;
+  created_at: string;
 }
 
 const ThreadList: React.FC = () => {
@@ -25,11 +28,14 @@ const ThreadList: React.FC = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Response:", response.data);
-        response.data.forEach((thread: Thread) => {
-          console.log(`Thread ID ${thread.id} Tags:`, thread.tags);
+
+        const sortedThreads = response.data.sort((a: Thread, b: Thread) => {
+          const dateA = new Date(a.created_at).getTime();
+          const dateB = new Date(b.created_at).getTime();
+          return dateB - dateA;
         });
-        setThreads(response.data);
+
+        setThreads(sortedThreads);
       } catch (error) {
         console.error("Error fetching threads:", error);
       }
@@ -62,50 +68,110 @@ const ThreadList: React.FC = () => {
           overflowY: "auto",
         }}
       >
+        <Typography
+          variant="h2"
+          sx={{
+            color: "white",
+            fontWeight: "bold",
+            marginBottom: 2,
+            marginTop: 2,
+          }}
+        >
+          What's new today
+        </Typography>
         {threads.map((thread) => (
-          <Card
-            key={thread.id}
-            sx={{ width: "60vw", margin: "20px", position: "relative" }}
-          >
-            <CardContent style={{ position: "relative" }}>
-              <Typography variant="h5" component="div">
-                {thread.title}
-              </Typography>
-              <Typography color="text.secondary">{`By ${thread.username}`}</Typography>
-              <Typography variant="body2" sx={{ marginTop: 2 }}>
-                {thread.content}
-              </Typography>
-              {thread.tags.length > 0 && (
-                <div>
-                  {thread.tags.map((tag) => (
-                    <Chip
-                      key={tag.name}
-                      label={tag.name}
-                      variant="outlined"
-                      color="info"
-                      size="small"
-                      sx={{ marginRight: 1, marginBottom: 1, marginTop: 2 }}
-                    />
-                  ))}
-                </div>
-              )}
-              <Link
-                to={`/comments/${thread.id}`}
-                style={{ textDecoration: "none" }}
-              ></Link>
-              <Fab
-                color="primary"
-                aria-label="add"
-                size="small"
-                sx={{ position: "absolute", bottom: 16, right: 16 }}
-              >
-                <AddIcon />
-              </Fab>
-            </CardContent>
-          </Card>
+          <ThreadCard key={thread.id} thread={thread} />
         ))}
       </div>
     </div>
+  );
+};
+
+interface ThreadCardProps {
+  thread: Thread;
+}
+
+const ThreadCard: React.FC<ThreadCardProps> = ({ thread }) => {
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  const fetchComments = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.get(
+        `/discussion_threads/${thread.id}/comments`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Fetched Comments for Thread ID:", thread.id, response.data);
+      setComments(
+        response.data.sort((a: Comment, b: Comment) => {
+          const dateA = new Date(a.created_at).getTime();
+          const dateB = new Date(b.created_at).getTime();
+          return dateB - dateA;
+        })
+      );
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [thread.id]);
+
+  return (
+    <Card sx={{ width: "60vw", margin: "20px", position: "relative" }}>
+      <CardContent style={{ position: "relative" }}>
+        <Typography variant="h5" component="div">
+          {thread.title}
+        </Typography>
+        <Typography color="text.secondary">{`By ${thread.username}`}</Typography>
+        <Typography variant="body2" sx={{ marginTop: 2 }}>
+          {thread.content}
+        </Typography>
+        {thread.tags.length > 0 && (
+          <div>
+            {thread.tags.map((tag) => (
+              <Chip
+                key={tag.name}
+                label={tag.name}
+                variant="outlined"
+                color="info"
+                size="small"
+                sx={{ marginRight: 1, marginBottom: 1, marginTop: 2 }}
+              />
+            ))}
+          </div>
+        )}
+
+        <Comment comments={comments} containerStyle={{ marginBottom: 50 }} />
+
+        <Fab
+          color="primary"
+          aria-label={showCommentForm ? "cancel" : "add"}
+          size="small"
+          sx={{ position: "absolute", bottom: 16, right: 16, marginTop: 50 }}
+          onClick={() => setShowCommentForm(!showCommentForm)}
+        >
+          {showCommentForm ? <ArrowBackIcon /> : <AddIcon />}
+        </Fab>
+
+        {showCommentForm && (
+          <CommentForm
+            threadId={thread.id}
+            onCommentAdded={() => {
+              setShowCommentForm(false);
+              fetchComments();
+            }}
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

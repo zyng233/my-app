@@ -1,24 +1,67 @@
 import React, { useState } from "react";
+import { TextField, Button, Typography } from "@mui/material";
+import axiosInstance from "../../axiosConfig";
 
-interface CommentFormProps {
-  onSubmit: (data: { content: string }) => void;
+interface Comment {
+  id: number;
+  content: string;
+  username: string;
 }
 
-const CommentForm: React.FC<CommentFormProps> = ({ onSubmit }) => {
+const CommentForm: React.FC<{
+  threadId: number;
+  onCommentAdded: () => void;
+}> = ({ threadId, onCommentAdded }) => {
   const [content, setContent] = useState("");
+  const [comment, setComment] = useState<Comment | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ content });
+  const handleCommentSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.post(
+        `/discussion_threads/${threadId}/comments`,
+        { comment: { content, discussion_thread_id: threadId } },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const newComment: Comment = response.data;
+      setComment(newComment);
+      setContent("");
+      onCommentAdded();
+    } catch (error) {
+      console.error("Error creating comment:", error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>Content:</label>
-      <textarea value={content} onChange={(e) => setContent(e.target.value)} />
+    <div>
+      <TextField
+        id="commentContent"
+        name="commentContent"
+        label="Add a comment"
+        multiline
+        rows={4}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        sx={{
+          marginRight: 1,
+          width: "80%",
+        }}
+      />
+      <Button variant="contained" color="primary" onClick={handleCommentSubmit}>
+        Add
+      </Button>
 
-      <button type="submit">Submit</button>
-    </form>
+      {comment && (
+        <div>
+          <Typography variant="body1">{`Comment by ${comment.username}: ${comment.content}`}</Typography>
+        </div>
+      )}
+    </div>
   );
 };
 

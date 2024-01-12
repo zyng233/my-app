@@ -1,9 +1,10 @@
 class Api::CommentsController < ApplicationController
-    before_action :set_comment, only: [:show, :update, :destroy]
-    before_action :authenticate_user!, only: [:create, :update, :destroy]
-
-    def index
-      @comments = Comment.all
+  before_action :authorize_request
+  before_action :set_comment, only: [:show, :update, :destroy]
+    
+  def index
+      @thread = DiscussionThread.find(params[:discussion_thread_id])
+      @comments = @thread.comments
       render json: @comments
     end
   
@@ -16,7 +17,7 @@ class Api::CommentsController < ApplicationController
       @comment.discussion_thread_id = params[:comment][:discussion_thread_id]
   
       if @comment.save
-        render json: @comment, status: :created, location: @comment
+        render json: @comment, status: :created
       else
         render json: @comment.errors, status: :unprocessable_entity
       end
@@ -41,7 +42,7 @@ class Api::CommentsController < ApplicationController
     end
   
     def comment_params
-      params.require(:comment).permit(:content, :thread_id)
+      params.require(:comment).permit(:content, :discussion_thread_id, :username)
     end
   end
   
