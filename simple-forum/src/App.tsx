@@ -8,6 +8,7 @@ import SignupPage from "./components/auth/Signup";
 import ThreadsList from "./components/thread/ThreadList";
 import CreateThread from "./components/thread/CreateThread";
 import Navigation from "./components/auth/Navigation";
+import ThreadDetails from "./components/thread/ThreadDetails";
 import { useAuth } from "./components/auth/Auth_status";
 
 const App: React.FC = () => {
@@ -46,26 +47,6 @@ const App: React.FC = () => {
     fetchData();
   }, [isAuthenticated, logout]);
 
-  // const handleThreadSubmit = async (data: {
-  //   title: string;
-  //   content: string;
-  //   tag_names: string;
-  // }) => {
-  //   try {
-  //     const requestData = {
-  //       ...data,
-  //       username: username,
-  //     };
-
-  //     await axiosInstance.post("/discussion_threads", requestData, {
-  //       withCredentials: true,
-  //     });
-  //     fetchData();
-  //   } catch (error) {
-  //     console.error("Error creating thread:", error);
-  //   }
-  // };
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -79,6 +60,10 @@ const App: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/discussion_threads" element={<ThreadsList />} />
+        <Route
+          path="/discussion_threads/:threadId"
+          element={<ThreadDetails />}
+        />
         <Route path="/create-thread" element={<CreateThread />} />
       </Routes>
     </div>

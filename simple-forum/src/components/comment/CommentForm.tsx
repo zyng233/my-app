@@ -38,7 +38,14 @@ const CommentForm: React.FC<{
   };
 
   return (
-    <div>
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        marginBottom: 16,
+      }}
+    >
       <TextField
         id="commentContent"
         name="commentContent"
@@ -49,12 +56,18 @@ const CommentForm: React.FC<{
         onChange={(e) => setContent(e.target.value)}
         sx={{
           marginRight: 1,
-          width: "80%",
+          width: "80vw",
         }}
       />
-      <Button variant="contained" color="primary" onClick={handleCommentSubmit}>
-        Add
-      </Button>
+      <div style={{ marginTop: "auto", marginLeft: "auto" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCommentSubmit}
+        >
+          Add
+        </Button>
+      </div>
 
       {comment && (
         <div>

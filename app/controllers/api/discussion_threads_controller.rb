@@ -42,6 +42,11 @@ class Api::DiscussionThreadsController < ApplicationController
   end  
 
   def update
+    unless authorized_to_modify?
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+      return
+    end
+
     if @discussion_thread.update(discussion_thread_params)
       render json: @discussion_thread
     else
@@ -50,10 +55,19 @@ class Api::DiscussionThreadsController < ApplicationController
   end
 
   def destroy
+    unless authorized_to_modify?
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+      return
+    end
+
     @discussion_thread.destroy
   end
 
   private
+
+  def authorized_to_modify?
+    @discussion_thread.username == current_user.username
+  end
 
   def set_discussion_thread
     @discussion_thread = DiscussionThread.find(params[:id])

@@ -6,6 +6,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import IconButton from "@mui/material/IconButton";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import Tooltip from "@mui/material/Tooltip";
 import { useAuth } from "../auth/Auth_status";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
@@ -36,14 +38,23 @@ const Navigation: React.FC = () => {
       <ThemeProvider theme={darkTheme}>
         <AppBar position="static">
           <Toolbar>
-            <Tabs value={value} onChange={handleChange}>
+            <Tabs value={value} onChange={handleChange} textColor="inherit">
+              <Spacer />
+              <Tooltip title="My Profile">
+                <IconButton color="inherit" onClick={logout}>
+                  <AccountCircle />
+                </IconButton>
+              </Tooltip>
               <Tab label="Threads" component={Link} to="/discussion_threads" />
               <Tab label="Create" component={Link} to="/create-thread" />
+              <Tab label="Category" component={Link} to="/create-thread" />
             </Tabs>
             <Spacer />
-            <IconButton color="inherit" onClick={logout}>
-              <ExitToAppIcon />
-            </IconButton>
+            <Tooltip title="Logout">
+              <IconButton color="inherit" onClick={logout}>
+                <ExitToAppIcon />
+              </IconButton>
+            </Tooltip>
           </Toolbar>
         </AppBar>
       </ThemeProvider>

@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import "./CreateThread.css";
+import "./Thread.css";
 
 const CreateThread: React.FC = () => {
   const [title, setTitle] = useState<string>("");
