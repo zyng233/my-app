@@ -1,5 +1,19 @@
-import React from "react";
-import { Grid, Paper, Typography, Avatar, Divider } from "@mui/material";
+import React, { useState } from "react";
+import axiosInstance from "../../axiosConfig";
+import { useAuth } from "../auth/Auth_status";
+import {
+  Grid,
+  Paper,
+  Typography,
+  Avatar,
+  Divider,
+  IconButton,
+  Alert,
+  Button,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditComment from "./EditComment";
 
 interface Comment {
   id: number;
@@ -10,9 +24,41 @@ interface Comment {
 
 interface CommentProps {
   comments: Comment[];
+  threadId: number;
+  onCommentEdit: (editedContent: string, commentId: number) => void;
 }
 
-const Comment: React.FC<CommentProps> = ({ comments }) => {
+const Comment: React.FC<CommentProps> = ({
+  comments,
+  threadId,
+  onCommentEdit,
+}) => {
+  const { username } = useAuth();
+  const [editCommentId, setEditCommentId] = useState<number | null>(null);
+  const [deleteCommentId, setDeleteCommentId] = useState<number | null>(null);
+
+  const handleEdit = (editedContent: string, commentId: number) => {
+    console.log("Comment updated successfully:", editedContent);
+    setEditCommentId(null);
+    onCommentEdit(editedContent, commentId);
+  };
+
+  const handleConfirmDelete = async (commentId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axiosInstance.delete(`/comments/${commentId}`, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Comment deleted successfully");
+      setDeleteCommentId(null);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+
   //Create Date
   const formatCreatedAt = (createdAt: string) => {
     const date = new Date(createdAt);
@@ -84,9 +130,49 @@ const Comment: React.FC<CommentProps> = ({ comments }) => {
                 {formatCreatedAt(comment.created_at)}
               </Typography>
             </Grid>
+            {username === comment.username && (
+              <Grid item>
+                <IconButton onClick={() => setEditCommentId(comment.id)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton onClick={() => setDeleteCommentId(comment.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            )}
           </Grid>
+
           {index < comments.length - 1 && (
             <Divider variant="fullWidth" style={{ margin: "2px 0" }} />
+          )}
+
+          {editCommentId === comment.id && (
+            <EditComment
+              threadId={threadId}
+              commentId={comment.id}
+              content={comments.find((c) => c.id === comment.id)?.content || ""}
+              onEdit={handleEdit}
+              onClose={() => setEditCommentId(null)}
+            />
+          )}
+
+          {deleteCommentId === comment.id && (
+            <Alert
+              severity="error"
+              style={{ border: "1px solid red" }}
+              onClose={() => setDeleteCommentId(null)}
+            >
+              <Typography variant="subtitle1">
+                Are you sure you want to delete this comment?
+              </Typography>
+              <Button
+                onClick={() => handleConfirmDelete(comment.id)}
+                variant="outlined"
+                color="error"
+              >
+                Yes
+              </Button>
+            </Alert>
           )}
         </React.Fragment>
       ))}

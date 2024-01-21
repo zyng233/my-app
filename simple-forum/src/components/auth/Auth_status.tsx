@@ -28,16 +28,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem("token") !== null
   );
-  console.log("Token in localStorage:", localStorage.getItem("token"));
-  console.log("IsAuthenticated:", isAuthenticated);
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(
+    localStorage.getItem("username")
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
-    console.log("IsAuthenticated:", isAuthenticated);
-  }, [isAuthenticated]);
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   const login = async (username: string, password: string) => {
     try {
@@ -46,13 +47,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         { username, password },
         { withCredentials: true }
       );
+      console.log("Server Response:", response.data);
 
       const { token } = response.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("username", username);
       setIsAuthenticated(true);
       setUsername(username);
-      console.log("User logged in");
-      console.log("Token in localStorage:", localStorage.getItem("token"));
+      console.log("User logged in. Username:", username);
       navigate("/discussion_threads");
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -71,13 +73,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         {
           user: { username, password, matric_no: matricNo },
         },
-        { withCredentials: true, timeout: 10000 }
+        { withCredentials: true }
       );
 
       const { token } = response.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("username", username);
       setIsAuthenticated(true);
-      console.log("User signed up");
+      setUsername(username);
+      console.log("User signed up. Username:", username);
       navigate("/discussion_threads");
     } catch (error: any) {
       console.error("Signup failed:", error);
@@ -87,6 +91,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("username");
     setIsAuthenticated(false);
     setUsername(null);
     navigate("/login");
@@ -106,6 +111,5 @@ export const useAuth = () => {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  console.log("AuthContext values:", context);
   return context;
 };

@@ -79,17 +79,9 @@ const CreateThread: React.FC = () => {
     <Box
       component="form"
       onSubmit={handleSubmit}
-      className="form-container"
+      className="bg"
       sx={{
-        backgroundImage:
-          "url('https://images.pexels.com/photos/531767/pexels-photo-531767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
         justifyContent: "center",
-        alignItems: "center",
         textAlign: "center",
         "& .MuiTextField-root": { m: 1, width: "60vw" },
       }}
@@ -151,7 +143,7 @@ const CreateThread: React.FC = () => {
       </div>
 
       {isDuplicateTag && (
-        <Stack sx={{ width: "50%" }} spacing={2}>
+        <Stack sx={{ width: "50%", marginBottom: 1 }} spacing={2}>
           <Alert severity="warning" onClose={() => setIsDuplicateTag(false)}>
             Duplicate tag! Please enter a different tag.{" "}
           </Alert>
@@ -159,7 +151,7 @@ const CreateThread: React.FC = () => {
       )}
 
       {validationError && (
-        <Stack sx={{ width: "50%" }} spacing={2}>
+        <Stack sx={{ width: "50%", marginBottom: 1 }} spacing={2}>
           <Alert severity="error" onClose={() => setValidationError(null)}>
             {validationError}
           </Alert>
@@ -188,6 +180,7 @@ const CreateThread: React.FC = () => {
         size="large"
         variant="contained"
         sx={{
+          marginTop: 1,
           color: "white",
           "&:hover": {
             backgroundColor: "darkgrey",

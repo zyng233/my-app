@@ -13,7 +13,7 @@ class Api::TagsController < ApplicationController
     end
   
     def create
-      @tag = Tag.new(tag_params)
+      tag = Tag.find_or_create_by(name: tag_name.downcase)
   
       if @tag.save
         render json: @tag, status: :created, location: @tag

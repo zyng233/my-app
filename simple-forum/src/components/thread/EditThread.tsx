@@ -1,30 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
 import axiosInstance from "../../axiosConfig";
 import EditedThreadData from "./edittype";
 
 interface EditThreadProps {
   existingThread: EditedThreadData;
   onClose: () => void;
-  onSave: (editedData: EditedThreadData) => void;
+  editedTags: { name: string }[];
 }
 
 const EditThread: React.FC<EditThreadProps> = ({
   existingThread,
   onClose,
-  onSave,
+  editedTags: initialEditedTags,
 }) => {
   const [editedTitle, setEditedTitle] = useState(existingThread?.title || "");
   const [editedContent, setEditedContent] = useState(
     existingThread?.content || ""
   );
-  const [editedTags, setEditedTags] = useState(existingThread?.tags || []);
+  const [editedTags, setEditedTags] = useState(initialEditedTags || []);
   const [editedTagInput, setEditedTagInput] = useState("");
+  const [isDuplicateTag, setIsDuplicateTag] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log("Initial Edited Tags:", initialEditedTags);
+    if (initialEditedTags) {
+      setEditedTags(initialEditedTags);
+    }
+  }, [initialEditedTags]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,10 +45,10 @@ const EditThread: React.FC<EditThreadProps> = ({
         return;
       }
 
-      const editedData: EditedThreadData = {
+      const editedData = {
         title: editedTitle,
         content: editedContent,
-        tags: editedTags,
+        tag_names: editedTags.map((tag) => tag.name),
       };
 
       const response = await axiosInstance.put(
@@ -48,8 +58,14 @@ const EditThread: React.FC<EditThreadProps> = ({
           withCredentials: true,
         }
       );
-      console.log("Thread updated successfully:", response.data);
-      onSave(editedData);
+
+      if (response.data && response.data.tag_names) {
+        setEditedTags(
+          response.data.tag_names.map((name: string) => ({ name }))
+        );
+      } else {
+        console.error("Unexpected response structure:", response.data);
+      }
       onClose();
     } catch (error) {
       console.error("Error updating thread:", error);
@@ -57,10 +73,21 @@ const EditThread: React.FC<EditThreadProps> = ({
   };
 
   const handleAddTag = () => {
+    console.log("Adding tag");
     if (editedTagInput.trim() !== "") {
       const trimmedTag = { name: editedTagInput.trim() };
-      setEditedTags((prevTags) => [...prevTags, trimmedTag]);
+      if (editedTags.some((tag) => tag.name === trimmedTag.name)) {
+        setIsDuplicateTag(true);
+        return;
+      }
+      setEditedTags((prevTags) => {
+        console.log("Before setEditedTags:", prevTags);
+        const updatedTags = [...prevTags, trimmedTag];
+        console.log("After setEditedTags:", updatedTags);
+        return updatedTags;
+      });
       setEditedTagInput("");
+      setIsDuplicateTag(false);
     }
   };
 
@@ -85,7 +112,7 @@ const EditThread: React.FC<EditThreadProps> = ({
           bgcolor: "background.paper",
           boxShadow: 24,
           p: 4,
-          minWidth: 400,
+          minWidth: "70vw",
         }}
       >
         <Typography variant="h6" component="div" sx={{ marginBottom: 2 }}>
@@ -126,13 +153,14 @@ const EditThread: React.FC<EditThreadProps> = ({
               type="button"
               onClick={handleAddTag}
               variant="contained"
-              sx={{ marginLeft: 1 }}
+              sx={{ marginLeft: 1, marginTop: 1 }}
             >
               Add
             </Button>
           </div>
+
           {editedTags.length > 0 && (
-            <div style={{ marginTop: 1 }}>
+            <div style={{ marginTop: 2 }}>
               {editedTags.map((tag, index) => (
                 <Chip
                   key={index}
@@ -142,6 +170,17 @@ const EditThread: React.FC<EditThreadProps> = ({
                 />
               ))}
             </div>
+          )}
+
+          {isDuplicateTag && (
+            <Stack sx={{ width: "70%" }} spacing={2}>
+              <Alert
+                severity="warning"
+                onClose={() => setIsDuplicateTag(false)}
+              >
+                Duplicate tag! Please enter a different tag.{" "}
+              </Alert>
+            </Stack>
           )}
           <Button
             type="submit"

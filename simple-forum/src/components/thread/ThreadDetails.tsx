@@ -14,11 +14,10 @@ import {
 } from "@mui/material";
 import AddCommentIcon from "@mui/icons-material/AddComment";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CloseIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import Comment from "../comment/Comment";
 import { useParams, useNavigate } from "react-router-dom";
 import ThreadType from "./types";
-import EditedThreadData from "./edittype";
 import ThreadCard from "./ThreadCard";
 import ThreadMenu from "./ThreadMenu";
 import EditThread from "./EditThread";
@@ -34,9 +33,8 @@ const ThreadDetails: React.FC = () => {
   const [threadErrors, setThreadErrors] = useState<string[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false);
-  const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
+  const [editedTags, setEditedTags] = useState<{ name: string }[]>([]);
   const navigate = useNavigate();
-
   const [confirmationMessage, setConfirmationMessage] = useState<string>(
     "Are you sure you want to delete this thread?"
   );
@@ -81,6 +79,7 @@ const ThreadDetails: React.FC = () => {
         );
 
         setThread(response.data);
+        setEditedTags(response.data.editedTags);
       } catch (error) {
         console.error("Error fetching thread details:", error);
       }
@@ -88,7 +87,7 @@ const ThreadDetails: React.FC = () => {
 
     fetchThreadDetails();
     fetchComments();
-  }, [threadId, isEditModalOpen]);
+  }, [threadId, isEditModalOpen, editedTags]);
 
   if (!thread) {
     return <div>Loading...</div>;
@@ -101,6 +100,7 @@ const ThreadDetails: React.FC = () => {
 
   const isCurrentUserAuthor = username === thread?.username;
 
+  //Edit thread
   const handleEdit = async () => {
     try {
       if (isCurrentUserAuthor) {
@@ -109,10 +109,11 @@ const ThreadDetails: React.FC = () => {
         setThreadErrors(["You are not authorized to edit this thread."]);
       }
     } catch (error) {
-      console.error("Error deleting thread:", error);
+      console.error("Error editing thread:", error);
     }
   };
 
+  //Delete thread
   const handleDelete = async () => {
     setIsConfirmationVisible(true);
   };
@@ -140,6 +141,15 @@ const ThreadDetails: React.FC = () => {
     setThreadErrors(newErrors);
   };
 
+  const handleCommentEdit = (editedContent: string, commentId: number) => {
+    const updatedComments = comments.map((comment) =>
+      comment.id === commentId
+        ? { ...comment, content: editedContent }
+        : comment
+    );
+    setComments(updatedComments);
+  };
+
   return (
     <div className="bg">
       <IconButton
@@ -149,6 +159,38 @@ const ThreadDetails: React.FC = () => {
       >
         <ArrowBackIcon />
       </IconButton>
+
+      {isConfirmationVisible && (
+        <Alert
+          severity="error"
+          style={{ border: "1px solid red", width: "60vw", marginTop: 20 }}
+          onClose={() => setIsConfirmationVisible(false)}
+        >
+          <Typography variant="subtitle1">{confirmationMessage}</Typography>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleConfirmDelete}
+          >
+            Yes
+          </Button>
+        </Alert>
+      )}
+
+      {threadErrors.length > 0 && (
+        <div>
+          {threadErrors.map((error, index) => (
+            <Alert
+              key={index}
+              severity="error"
+              style={{ border: "1px solid red", width: "60vw", marginTop: 20 }}
+              onClose={() => handleCloseError(index)}
+            >
+              <Typography variant="subtitle1">{error}</Typography>
+            </Alert>
+          ))}
+        </div>
+      )}
 
       <Card
         sx={{
@@ -171,7 +213,7 @@ const ThreadDetails: React.FC = () => {
                 isAuthor={isCurrentUserAuthor}
               />
               <Grid item>
-                <ThreadCard thread={thread} />
+                <ThreadCard thread={thread} editedTags={editedTags} />
               </Grid>
 
               <Grid
@@ -200,7 +242,11 @@ const ThreadDetails: React.FC = () => {
 
           {comments.length > 0 && (
             <CardContent style={{ padding: 16 }}>
-              <Comment comments={comments} />
+              <Comment
+                comments={comments}
+                threadId={Number(threadId)}
+                onCommentEdit={handleCommentEdit}
+              />
             </CardContent>
           )}
         </CardContent>
@@ -210,43 +256,8 @@ const ThreadDetails: React.FC = () => {
         <EditThread
           onClose={() => setIsEditModalOpen(false)}
           existingThread={thread}
-          onSave={(editedData: EditedThreadData) => {
-            console.log("Saving edited data:", editedData);
-            setIsEditModalOpen(false);
-          }}
+          editedTags={thread.tags}
         />
-      )}
-
-      {isConfirmationVisible && (
-        <Alert
-          severity="error"
-          style={{ border: "1px solid red" }}
-          onClose={() => setIsConfirmationVisible(false)}
-        >
-          <Typography variant="subtitle1">{confirmationMessage}</Typography>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleConfirmDelete}
-          >
-            Yes
-          </Button>
-        </Alert>
-      )}
-
-      {threadErrors.length > 0 && (
-        <div>
-          {threadErrors.map((error, index) => (
-            <Alert
-              key={index}
-              severity="error"
-              style={{ border: "1px solid red" }}
-              onClose={() => handleCloseError(index)}
-            >
-              <Typography variant="subtitle1">{error}</Typography>
-            </Alert>
-          ))}
-        </div>
       )}
     </div>
   );

@@ -4,7 +4,6 @@ class Api::SessionsController < ApplicationController
 
   def create
     user = User.find_by(username: params[:username])
-    log_info("User username: #{user.username}, Password: #{params[:password]}")
   
     if user&.valid_password?(params[:password])
       sign_in user, store: false

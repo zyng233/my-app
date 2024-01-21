@@ -9,6 +9,11 @@ Rails.application.routes.draw do
     post '/signup', to: 'users#create'
     resources :tags, only: [:index, :show, :create, :update, :destroy]
     resources :discussion_threads, only: [:index, :show, :create, :update, :destroy] do
+      collection do
+        get 'search', to: 'discussion_threads#search'
+        get 'mythreads', to: 'discussion_threads#fetch_my_threads'
+      end
+
       resources :comments, only: [:index, :show, :create, :update, :destroy]
     end
   end

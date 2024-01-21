@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../axiosConfig";
-import ThreadCard from "./ThreadCard";
+import ThreadCard from "../thread/ThreadCard";
 import { Link } from "react-router-dom";
-import ThreadType from "./types";
+import ThreadType from "../thread/types";
 import { Card, Typography, Link as MuiLink } from "@mui/material";
-import "./Thread.css";
+import { useAuth } from "./Auth_status";
+import "../thread/Thread.css";
 
-const ThreadList: React.FC = () => {
+const Profile: React.FC = () => {
+  const { username } = useAuth();
   const [threads, setThreads] = useState<ThreadType[]>([]);
   const [editedTags, setEditedTags] = useState<{ name: string }[]>([]);
 
@@ -14,12 +16,18 @@ const ThreadList: React.FC = () => {
     const fetchThreads = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axiosInstance.get("/discussion_threads", {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axiosInstance.get(
+          "/discussion_threads/mythreads",
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              username: username,
+            },
+          }
+        );
 
         const sortedThreads = response.data.sort(
           (a: ThreadType, b: ThreadType) => {
@@ -36,7 +44,7 @@ const ThreadList: React.FC = () => {
     };
 
     fetchThreads();
-  }, []);
+  }, [username]);
 
   return (
     <div
@@ -58,11 +66,11 @@ const ThreadList: React.FC = () => {
           marginTop: 2,
         }}
       >
-        Threads
+        My Profile
       </Typography>
       {threads.map((thread) => (
         <Card
-          key={thread.id}
+          key={username}
           sx={{
             width: "60vw",
             margin: "20px",
@@ -83,4 +91,4 @@ const ThreadList: React.FC = () => {
   );
 };
 
-export default ThreadList;
+export default Profile;

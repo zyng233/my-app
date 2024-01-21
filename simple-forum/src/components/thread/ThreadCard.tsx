@@ -1,20 +1,17 @@
 import React from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Grid,
-  Avatar,
-} from "@mui/material";
+import { CardContent, Typography, Chip, Grid, Avatar } from "@mui/material";
 import ThreadType from "./types";
 
 interface ThreadCardProps {
   thread: ThreadType;
-  onClick?: () => void;
+  editedTags?: { name: string }[];
 }
 
-const ThreadCard: React.FC<ThreadCardProps> = ({ thread }) => {
+const ThreadCard: React.FC<ThreadCardProps> = ({ thread, editedTags }) => {
+  const allTags = [
+    ...thread.tags,
+    ...(Array.isArray(editedTags) ? editedTags : []),
+  ];
   //Create Date
   const formatCreatedAt = (createdAt: string) => {
     const date = new Date(createdAt);
@@ -81,7 +78,7 @@ const ThreadCard: React.FC<ThreadCardProps> = ({ thread }) => {
           </Typography>
           {thread.tags.length > 0 && (
             <div>
-              {thread.tags.map((tag) => (
+              {allTags.map((tag) => (
                 <Chip
                   key={tag.name}
                   label={tag.name}

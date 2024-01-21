@@ -3,9 +3,6 @@ class Api::UsersController < ApplicationController
   
     def create
       user = User.new(user_params)
-      Rails.logger.info("Received Parameters: #{params.inspect}")
-
-      puts "User before validation: #{user.attributes.inspect}"
       
       if user_exists?(user.username, user.matric_no)
         render json: { errors: ['Username or Matric Number is already used.'] }, status: :unprocessable_entity
@@ -15,11 +12,9 @@ class Api::UsersController < ApplicationController
       if user.save
         render json: { user: user, token: generate_token(user) }, status: :created
       else
-        puts "User validation errors: #{user.errors.full_messages}"
         render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
       end
 
-      Rails.logger.info("Generated Token: #{generate_token(user)}")
     end
   
     private

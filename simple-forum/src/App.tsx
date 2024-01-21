@@ -5,10 +5,12 @@ import axiosInstance from "./axiosConfig";
 import HomePage from "./components/auth/Homepage";
 import LoginPage from "./components/auth/Login";
 import SignupPage from "./components/auth/Signup";
+import Profile from "./components/auth/Profile";
 import ThreadsList from "./components/thread/ThreadList";
 import CreateThread from "./components/thread/CreateThread";
 import Navigation from "./components/auth/Navigation";
 import ThreadDetails from "./components/thread/ThreadDetails";
+import Category from "./components/tag/Category";
 import { useAuth } from "./components/auth/Auth_status";
 
 const App: React.FC = () => {
@@ -59,12 +61,14 @@ const App: React.FC = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/discussion_threads" element={<ThreadsList />} />
         <Route
           path="/discussion_threads/:threadId"
           element={<ThreadDetails />}
         />
         <Route path="/create-thread" element={<CreateThread />} />
+        <Route path="/category" element={<Category />} />
       </Routes>
     </div>
   );
