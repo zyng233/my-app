@@ -1,7 +1,7 @@
 {
   "name": "simple-forum",
   "version": "0.1.0",
-  "homepage": "https://myapp-3zrc.onrender.com/",
+  "homepage": "https://myapp-whvf.onrender.com/",
   "proxy": "http://localhost:3001",
   "private": true,
   "dependencies": {
