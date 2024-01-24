@@ -4,7 +4,7 @@ const token = localStorage.getItem("token");
 console.log("Token in localStorage:", token);
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3001/api", // Rails backend URL
+  baseURL: process.env.REACT_APP_API_URL, //"http://localhost:3001/api", // Rails backend URL
   withCredentials: true,
   timeout: 5000, // Timeout in milliseconds
   headers: {
