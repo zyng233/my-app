@@ -34,7 +34,7 @@
     ]
   },
   "scripts": {
-    "build": "cd simple-forum && npm run build",
+    "build": "cd simple-forum && react-app-rewired build",
     "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
     "start-backend": "rails server -p 3001",
     "start-frontend": "cd simple-forum && npm start --port 3000"
@@ -49,6 +49,8 @@
     "@types/react-router-dom": "^5.3.3",
     "concurrently": "^8.2.2",
     "css-loader": "^6.8.1",
+    "customize-cra": "^1.0.0",
+    "react-app-rewired": "^2.2.1",
     "style-loader": "^3.3.3"
   }
 }
