@@ -27,7 +27,7 @@ development:
     # Hot Module Replacement updates modules while the application is running without a full reload
     hmr: false
     # Defaults to the inverse of hmr. Uncomment to manually set this.
-    # live_reload: true
+    live_reload: true
     client:
       # Should we show a full-screen overlay in the browser when there are compiler errors or warnings?
       overlay: true
@@ -42,10 +42,10 @@ development:
     allowed_hosts: "all"
     pretty: true
     headers:
-      'Access-Control-Allow-Origin': '*'
+      "Access-Control-Allow-Origin": "*"
     static:
       watch:
-        ignored: '**/node_modules/**'
+        ignored: "**/node_modules/**"
 
 test:
   <<: *default
