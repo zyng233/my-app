@@ -1,0 +1,13 @@
+[build]
+  command = "CI=false npm install && CI=false npm run build"
+  functions = "myapp" 
+  publish = "simple-forum/build" 
+  environment = {
+    REACT_APP_API_URL = "/.netlify/functions" 
+  }
+
+[[redirects]] # example redirects
+  from = "/old-path"
+  to = "/new-path"
+  status = 301
+  force = true
