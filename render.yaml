@@ -10,9 +10,14 @@ services:
     runtime: ruby
     plan: free
     buildCommand: |
-      npm install && bundle install --jobs 4 --retry 3 && npm run build
-      # preDeployCommand: "./bin/rails db:migrate" # preDeployCommand only available on paid instance types
-    startCommand: "npm start"
+      cd simple-forum
+      npm install
+      npm run build
+    startCommand: |
+      cd myapp
+      bundle install
+      bundle exec rails db:migrate
+      REACT_APP_API_URL=http://localhost:3001/api bundle exec rails server -p $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -22,3 +27,5 @@ services:
         sync: false
       - key: WEB_CONCURRENCY
         value: "2"
+      - key: RAILS_ENV
+        value: "production"
