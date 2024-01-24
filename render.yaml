@@ -9,8 +9,8 @@ services:
     name: myapp
     runtime: ruby
     plan: free
-     buildCommand: "bundle install --jobs 4 --retry 3"
-    # preDeployCommand: "./bin/rails db:migrate" # preDeployCommand only available on paid instance types
+     buildCommand: "npm install && bundle install --jobs 4 --retry 3 && npm run build"
+      # preDeployCommand: "./bin/rails db:migrate" # preDeployCommand only available on paid instance types
     startCommand: "npm start"
     envVars:
       - key: DATABASE_URL
