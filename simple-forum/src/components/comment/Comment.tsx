@@ -68,23 +68,21 @@ const Comment: React.FC<CommentProps> = ({
     }).format(date);
   };
 
-  //Avatar's Color
-  const stringToColor = (string: string) => {
-    let hash = 0;
-    let i;
+  //Avatar's Color from MUI
+  function stringAvatar(name: string) {
+    const colors = ["red", "blue", "green", "yellow", "purple"];
+    const firstChar = name.charAt(0).toUpperCase();
+    const colorIndex = firstChar.charCodeAt(0) % colors.length;
 
-    for (i = 0; i < string.length; i += 1) {
-      hash = string.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    let color = "#";
-
-    for (i = 0; i < 3; i += 1) {
-      const value = (hash >> (i * 8)) & 0xff;
-      color += `00${value.toString(16)}`.slice(-2);
-    }
-    return color;
-  };
+    return {
+      sx: {
+        marginTop: 1,
+        marginLeft: 1,
+        bgcolor: colors[colorIndex],
+      },
+      children: firstChar,
+    };
+  }
 
   return (
     <Paper
@@ -96,15 +94,7 @@ const Comment: React.FC<CommentProps> = ({
         <React.Fragment key={comment.id}>
           <Grid container wrap="nowrap" spacing={2}>
             <Grid item>
-              <Avatar
-                sx={{
-                  bgcolor: stringToColor(
-                    comment.username.charAt(0).toUpperCase()
-                  ),
-                  marginTop: 1,
-                  marginLeft: 1,
-                }}
-              >
+              <Avatar {...stringAvatar(comment.username)}>
                 {comment.username.charAt(0).toUpperCase()}
               </Avatar>
             </Grid>

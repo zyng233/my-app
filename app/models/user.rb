@@ -1,9 +1,13 @@
 class User < ApplicationRecord
-    devise :database_authenticatable, :recoverable, 
-            :rememberable, :validatable
+    devise :database_authenticatable, :recoverable, authentication_keys: [:username]
 
     self.primary_key = 'username'
+    validates_uniqueness_of :username, case_sensitive: true, allow_nil: false
+    validates_format_of :username, with: /\A[a-zA-Z0-9_]+\z/, allow_nil: false
+    validates :password, presence: true, on: :create
+    validates_length_of :password, within: Devise.password_length, allow_nil: false
     validates :username, :matric_no, presence: true, uniqueness: true
+    
     has_many :discussion_threads, foreign_key: 'username', dependent: :destroy
     has_many :comments, foreign_key: 'username', dependent: :destroy
 

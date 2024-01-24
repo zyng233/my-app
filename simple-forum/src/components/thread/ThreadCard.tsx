@@ -21,35 +21,26 @@ const ThreadCard: React.FC<ThreadCardProps> = ({ thread, editedTags }) => {
     }).format(date);
   };
 
-  //Avatar's Color
-  const stringToColor = (string: string) => {
-    let hash = 0;
-    let i;
+  //Avatar's Color from MUI
+  function stringAvatar(name: string) {
+    const colors = ["red", "blue", "green", "yellow", "purple"];
+    const firstChar = name.charAt(0).toUpperCase();
+    const colorIndex = firstChar.charCodeAt(0) % colors.length;
 
-    for (i = 0; i < string.length; i += 1) {
-      hash = string.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    let color = "#";
-
-    for (i = 0; i < 3; i += 1) {
-      const value = (hash >> (i * 8)) & 0xff;
-      color += `00${value.toString(16)}`.slice(-2);
-    }
-    return color;
-  };
-
+    return {
+      sx: {
+        bgcolor: colors[colorIndex],
+        marginTop: 1,
+        marginLeft: 1,
+      },
+      children: firstChar,
+    };
+  }
   return (
     <CardContent style={{ position: "relative" }}>
       <Grid container wrap="nowrap" spacing={2}>
         <Grid item>
-          <Avatar
-            sx={{
-              bgcolor: stringToColor(thread.username.charAt(0).toUpperCase()),
-              marginTop: 1,
-              marginLeft: 1,
-            }}
-          >
+          <Avatar {...stringAvatar(thread.username)}>
             {thread.username.charAt(0).toUpperCase()}
           </Avatar>
           <Typography

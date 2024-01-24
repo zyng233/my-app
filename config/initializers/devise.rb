@@ -11,6 +11,7 @@
 Devise.setup do |config|
   
   config.authentication_keys = [:username]
+  config.case_insensitive_keys = [ :username ]
 
   # config.jwt do |jwt|
     # jwt.secret = 'your_secret_key'
