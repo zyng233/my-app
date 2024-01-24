@@ -3,11 +3,5 @@
   functions = "myapp" 
   publish = "simple-forum/build" 
   environment = {
-    REACT_APP_API_URL = "/.netlify/functions" 
+    "REACT_APP_API_URL" = "/.netlify/functions" 
   }
-
-[[redirects]] # example redirects
-  from = "/old-path"
-  to = "/new-path"
-  status = 301
-  force = true
