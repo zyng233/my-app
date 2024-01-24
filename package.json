@@ -34,6 +34,7 @@
     ]
   },
   "scripts": {
+    "build": "react-scripts build",
     "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
     "start-backend": "rails server -p 3001",
     "start-frontend": "cd simple-forum && npm start --port 3000"
