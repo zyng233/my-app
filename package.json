@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "cd simple-forum && npm install && npm run build",
-    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "start": "concurrently \"cd myapp && npm run start-backend\" \"cd simple-forum && npm run start-frontend\"",
     "start-backend": "cd myapp && rails server -p 3001",
     "start-frontend": "cd simple-forum && npm start --port 3000"
   },
